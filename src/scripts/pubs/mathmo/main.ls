@@ -54,13 +54,27 @@ require {
 
     'pubs/mathmo/services/config':
       deps:
-        * 'libs/qa/problems'
-        ...
+        * 'app'
+          'libs/qa/problems'
+
+    'pubs/mathmo/services/questionStore':
+      deps:
+        * 'app'
+          'libs/seedrandom'
 
     'pubs/mathmo/controllers/mathmoController':
       deps:
         * 'app'
           'pubs/mathmo/services/config'
+          'pubs/mathmo/services/questionStore'
+
+    'pubs/mathmo/directives/mathmoPlot':
+      deps:
+        * 'app'
+          'pubs/mathmo/controllers/mathmoController'
+          'directives/d3Vis'
+          'services/d3LineChart'
+          'libs/d3.v3'
 
     'controllers/appController':
       deps:
@@ -91,6 +105,12 @@ require {
     'services/semver':
       deps:
         * 'app'
+        ...
+
+    'services/d3LineChart':
+      deps:
+        * 'app'
+        'libs/d3.v3'
         ...
 
     'bootstrap':
@@ -131,6 +151,7 @@ require {
   * 'require'
     'controllers/appController'
     'pubs/mathmo/controllers/mathmoController'
+    'pubs/mathmo/directives/mathmoPlot'
     'directives/appVersion'
     'routes'
     'views'
