@@ -1,45 +1,62 @@
 angular.module('app').directive 'mathmoPlot' [
   '$parse'
-  'd3LineChart'
-  ($parse, d3LineChart) ->
-    restrict: 'A'
-    link: (scope, element, attrs) ->
+  'd3MultiLineChart'
+  ($parse, chartFactory) ->
+    return
+      restrict: 'A'
 
-      console.log 'mathmoPlot'
+      link: (scope, element, attrs) ->
 
-      # remember last draw space
-      savedContainer = null
-      savedWidth = 400
-      savedHeight = 300
+        console.log 'mathmoPlot'
 
-      draw = (event, container, width, height) ->
-        console.log 'draw'
+        # remember last draw space
+        savedContainer = null
+        savedWidth = 400
+        savedHeight = 300
 
-        savedContainer := container
-        savedWidth := width
-        savedHeight := height
+        chart = null
+        data = null
 
-        # since we're nested in d3Vis scope, must evaluate attributes on parent scope
-        getData = $parse(attrs.data)
-        data = getData(scope.$parent)
-        console.log data
+        draw = (event, container, width, height) ->
+          console.log 'draw'
 
-        chart = d3LineChart().width(width).height(height)
+          savedContainer := container
+          savedWidth := width
+          savedHeight := height
+
+          scope.$parent.$watch attrs.data, (data) ->
+            console.log 'data changed'
+            console.log data
+            scope.$broadcast 'resize', savedContainer, savedWidth, savedHeight
+
+          # since we're nested in d3Vis scope, must evaluate attributes on parent scope
+          getData = $parse(attrs.data)
+          data := getData(scope.$parent)
+
+          chart := chartFactory()
+          .width(width)
+          .height(height)
           .x((d) -> d[0])
           .y((d) -> d[1])
 
-        container.datum(data[0]).call(chart)
+          container.datum(data).call(chart)
 
-      resize = (event, container = savedContainer, width = savedWidth, height = savedHeight) ->
-        console.log 'resize'
+        resize = (event, container = savedContainer, width = savedWidth, height = savedHeight) ->
+          console.log 'resize'
 
-        savedContainer := container
-        savedWidth := width
-        savedHeight := height
+          savedContainer := container
+          savedWidth := width
+          savedHeight := height
 
+         # since we're nested in d3Vis scope, must evaluate attributes on parent scope
+          getData = $parse(attrs.data)
+          data := getData(scope.$parent)
 
-      # listen for redraw events
-      scope.$on 'draw', draw
-      scope.$on 'resize', resize
+          chart.width(width).height(height)
+          container.datum(data).call(chart)
+
+        # listen for redraw events
+        scope.$on 'draw', draw
+        scope.$on 'resize', resize
 
 ]

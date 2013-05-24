@@ -38,6 +38,20 @@ angular.module('app').factory 'questionStore', [
       qSets[name].push topicId
       localStore.qSets = JSON.stringify qSets
 
+    # update a question number after prev or next
+    updateQ = (name, topicId, qNo) ->
+      qSets = JSON.parse localStore.qSets
+      set = qSets[name]
+      if set
+        # copy the exercise, while editing qNo for question at topicId
+        qSets[name] = set.map (q) ->
+          if q.indexOf(topicId) == 0
+            parts = q.split \:
+            parts[1] = qNo
+            q = parts.join \:
+          return q
+        localStore.qSets = JSON.stringify qSets
+
     # Save this question set in local storage by name
     # We have to serialise and deserialise using JSON
     # since localStorage only saves strings.
@@ -47,9 +61,10 @@ angular.module('app').factory 'questionStore', [
       qSets["mathmo"] = semver
       qSets[name] = topicIds
       localStore.qSets = JSON.stringify qSets
+      return topicIds
 
     newQSet = (name) ->
-      saveAs(name, [])
+      return saveAs(name, [])
 
     getQSet = (name) ->
       qSets = JSON.parse localStore.qSets
@@ -70,6 +85,7 @@ angular.module('app').factory 'questionStore', [
       init: init
       clear: clear
       appendQ: appendQ
+      updateQ: updateQ
       saveAs: saveAs
       newQSet: newQSet
       getQSet: getQSet

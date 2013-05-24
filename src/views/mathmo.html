@@ -1,54 +1,101 @@
-<div ng-controller="mathmoController" class="row-fluid">
+<div ng-controller="mathmoController" class="mathmo">
 
-  <div class="hero-unit">
-    <h1>Mathmo</h1>
+  <div class="well well-large" style="margin-top:15px;background-image:url('scripts/pubs/mathmo/img/well.png')">
+    <h1><img src="scripts/pubs/mathmo/img/icon.png" style="width:60px;height:60px"> Mathmo <span style="font-size:18px" app-version></span></h1>
     <p>An exercise generator for A-level mathematics</p>
     <form name="addQSetForm">
 
-      <div class="input-append">
+      <div class="input-prepend">
 
-        <input type="text" name="name" placeholder="name" required ng-model="newName" ng-minlength="4"></input>
+        <button class="btn btn-primary" ng-disabled="!addQSetForm.name.$valid"  ng-click="addQSet()"><i class="icon-plus icon-white"></i> Exercise</button>
 
-        <button class="btn" ng-disabled="!addQSetForm.name.$valid"  ng-click="addQSet()"><i class="icon-plus"></i> Add</button>
+        <input type="text" name="name" placeholder="name" required ng-model="exercise.name" ng-minlength="4" ng-maxlength="10" size="12" tooltip="Enter a 4 to 10 character name" tooltip-placement='top'></input>
 
       </div>
-      <p><small>Enter an exercise name of 4 characters or more and press <code>Add</code> to start.</small></p>
+      <p><small>Enter an exercise name and press <span class="label label-info">+ Exercise</span> to start.</small></p>
 
     </form>
   </div>
 
-
-
   <tabs>
+    <pane id="helpTab" heading="Help">
+      <h5>Getting Started</h5>
+      <p>
+      Use the input box in the <a ng-click="openAbout()" href="">Mathmo</a> header to add a new named exercise. Each exercise appears in a new tab. Click on the tab to add questions on any of a large choice of topics. These same questions stay with you until you choose to delete them.
+      </p>
+
+      <h5>Mathmo remembers</h5>
+      <p>
+      When you close down mathmo, your exercises will be remembered in local storage. When you return to mathmo, the same exercises and questions will be restored. Even if you start mathmo on a different computer, you can generate the same questions by creating an exercise with the same name.
+      </p>
+
+      <p>This works because the random number generator used to generate questions is seeded from:
+        <ul>
+          <li>The exercise name</li>
+          <li>The question topic</li>
+          <li>The question number within a topic.</li>
+        </ul>
+      When all of these are the same mathmo generates the same question.
+      </p>
+
+      <h5>Sharing</h5>
+      <p>You can share questions with your friends. Press the share button to see available methods.</p>
+
+    </pane>
     <pane ng-repeat="pane in panes" heading="{{pane.name}}" active="pane.active">
-
-      <div class="btn-group">
-        <button class="btn btn-danger" ng-click="delQSet(pane.name)"><i class="icon-remove icon-white"></i> Delete {{pane.name}}</button>
-        <button class="btn" ng-click="openAddQ(pane)">Add a question</button>
+      <!--
+      <div style="margin-bottom:20px;">
+        <button class="btn btn-primary" style="float:left" ng-click="openAddQ(pane)">Add a question</button>
+        <button class="btn btn-danger" tooltip="Delete exercise {{pane.name}}" tooltip-placement="left" style="float:right" ng-click="delQSet($index)"><i class="icon-remove icon-white"></i></button>
       </div>
+      -->
+      <div ng-repeat="qa in pane.questions" class="well well-large" style="background-color:#F4F9F8">
+        <h5 style="float:left">Q{{$index+1}}: {{qa.topic}}</h5>
+        <div class="btn-group pull-right" tooltip="Similar questions" tooltip-placement="top">
+          <button class="btn" ng-click="prevOnTopic(qa)">Prev</button>
+          <button class="btn" ng-click="nextOnTopic(qa)">Next</button>
+        </div>
+        <p ng-bind-html-unsafe="qa.q" style="clear:both"></p>
+  
+        <button class="btn pull-right" 
+          ng-click="openShare(qa)"
+          tooltip="Seed {{qa.seed}}"
+          tooltip-placement="top"
+        >
+          <i class="icon-share"></i> Share
+        </button>
 
-      <div ng-repeat="qa in pane.questions">
-        <h5>Q{{$index+1}}:{{qa.topic}}</h5>
-        <p ng-bind-html-unsafe="qa.q"></p>
-
-        <button class="btn btn-warning" ng-click="qa.toggle()"><i class="icon-chevron-down icon-white"></i> answer</button>
+        <a ng-click="qa.toggle()" href="">
+          <span ng-show="qa.isCollapsed">
+            <i class="icon-chevron-down"></i> show answer
+          </span>
+          <span ng-hide="qa.isCollapsed">
+            <i class="icon-chevron-up"></i> hide answer
+          </span>
+        </a>
  
-        <div collapse="qa.isCollapsed">
+        <!--<div collapse="qa.isCollapsed">-->
+        <div ng-hide="qa.isCollapsed">
            <div ng-switch on="qa.isGraph()" >
             <div ng-switch-when="html">
-              <div class="well well-large" ng-bind-html-unsafe="qa.a"></div>
+              <div ng-bind-html-unsafe="qa.a"></div>
             </div>
             <div ng-switch-when="graph">
 
-              {{qa.graphData()}}
-
               <div d3-vis
-                fullWidth="400" fullHeight="400" woff="41"
-                margin="20"  
-                responsive="false" visible="false">
-                <div mathmo-plot data="qa.graphData()" style="position:relative">Plot</div>
+                fullWidth="350" fullHeight="300"
+                margin="0 0 20 0"
+                padding="10 10 20 30"
+                woff = "100"
+                responsive="true" visible="false">
+                <div mathmo-plot data="qa.graphData" style="position:relative"></div>
               </div>
 
+              <div ng-show="showSketchWarning()">
+                <alert type="warning" close="closeSketchWarning()">Do not rely on this plot being correctly framed. <a href="https://github.com/gmp26/Apps1/issues/1">[#1]</a>. Your own sketch should label significant features of the graph. </alert>
+              </div>
+
+              <!-- {{qa.graphData}} -->
 
             </div>
             <span ng-switch-default>default</span>
@@ -57,23 +104,56 @@
 
       </div>
 
+      <div>
+        <div class="btn-group pull-left">
+          <button class="btn btn-primary" ng-click="openAddQ(pane)"><i class="icon-plus icon-white"></i> Questions</button>
+        </div>
+        <button class="btn btn-danger" tooltip="Delete exercise {{pane.name}}" tooltip-placement="left" style="float:right" ng-click="delQSet($index)"><i class="icon-remove icon-white"></i></button>
+      </div>
+
     </pane>
   </tabs>
 
 
-  <hr />
+  <hr/>
 
-  <div class="btn-group btn-group-vertical">
-    <button class="btn" ng-click="openAbout()">About Mathmo</button>
-
-    <button class="btn" ng-click="openAddQ()">Add a question</button>
-
-    <button class="btn" ng-click="qStore.clear()">Clear all</button>
+  <div class="well" style="padding-bottom:28px">
+    Copyright University of Cambridge
+    <button class="btn btn-danger" style="float:right" tooltip="delete all exercises" tooltip-placement="top" ng-click="clearAll()">Clear all</button>
+    <span style="float:right">&nbsp;</span>
+    <button class="btn btn-info" style="float:right" tooltip="Credits etc." tooltip-placement="top"  ng-click="openAbout()">About</button>
   </div>
 
+  <div modal="shareOpen" close="closeShare()" options="shareOpts">
+    <div class="modal-header">
+      <h3>Share Question</h3>
+    </div>
+    <div class="modal-body share">
+      <textarea rows="3">{{shareText}}</textarea>
+      <p>to one of these services:</p>
+
+      <ul class="btn-group unstyled">
+        <li class="btn"tooltip="Email" tooltip-placement="bottom"><a ng-href="mailto:?subject={{encodeURI(currentQuestion.url)}}&amp;body={{encodeURI(shareText)}}" target="_blank"><img src="https://sharenice.org/images/icon-email.png"  alt="email_icon" title="email" ></a></li>
+
+        <li class="btn" tooltip="Facebook" tooltip-placement="bottom"><a ng-href="http://www.facebook.com/sharer.php?u={{encodeURI(currentQuestion.url)}}&amp;t=Demo%20shareNice" target="_blank"><img src="https://sharenice.org/images/facebook_com.png" alt="facebook.com_icon" title="facebook.com"></a></li>
+
+        <li class="btn" tooltip="Twitter" tooltip-placement="bottom"><a ng-href="http://twitter.com/?status={{encodeURI(shareText)}}" target="_blank"><img src="https://sharenice.org/images/twitter_com.png" alt="twitter.com_icon" title="twitter.com"></a></li>
+
+        <li class="btn" tooltip="Google Plus" tooltip-placement="bottom"><a ng-href="https://plus.google.com/_/+1/confirm?url={{encodeURI(currentQuestion.url)}}" target="_blank" ><img src="https://sharenice.org/images/plus_google_com.png" alt="plus.google.com_icon" title="plus.google.com"></a></li>
+
+        <li class="btn" tooltip="Delicious" tooltip-placement="bottom"><a ng-href="http://del.icio.us/post?url={{encodeURI(currentQuestion.url)}}" target="_blank" style="margin:0px; padding:0px;"><img src="https://sharenice.org/images/delicious_com.png" alt="delicious.com_icon" title="delicious.com"></a></button>
+
+        <!--
+        <li class="btn" tooltip="Digg" tooltip-placement="bottom"><a ng-href="http://digg.com/submit?phase=2&amp;url={{encodeURI(currentQuestion.url)}}" target="_blank"><img src="https://sharenice.org/images/digg_com.png" alt="digg.com_icon" title="digg.com"></a></li>
+        -->
+      </ul>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-warning cancel" ng-click="closeShare()">Close</button>
+    </div>
+  </div>
 
   <div modal="addQOpen" close="closeAddQ()" options="addQOpts">
-
     <div class="modal-header">
       <h3>Add a question</h3>
       <h4>on topic</h4>
@@ -82,34 +162,24 @@
       <accordion close-others="false">
         <accordion-group heading="{{group.title}}" ng-repeat="group in groups">
           <div class="btn-group btn-group-vertical row-fluid">
-            <button class="btn span12" ng-repeat="id in group.topicIds" ng-click="appendQ(id)">{{topicTitleById(id)}}</button>
+            <button class="btn span12" ng-repeat="id in group.topicIds" ng-show="topicAvailable(id)" ng-click="appendQ(id)">{{topicTitleById(id)}}</button>
           </div>
         </accordion-group>
       </accordion>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-warning cancel" ng-click="closeAddQ()">Close</button>
+      <button class="btn btn-warning cancel" ng-click="closeAddQ()">Close</button>
     </div>
   </div>
 
   <div modal="aboutOpen" close="closeAbout()" options="aboutOpts">
 
     <div class="modal-header">
-        <h4><img src="scripts/pubs/mathmo/img/icon.png"> About Mathmo</h4>
+      <h4><img src="scripts/pubs/mathmo/img/icon.png" style="width:60px;height:60px"> About Mathmo</h4>
     </div>
     <div class="modal-body">
-       Mathmo is designed to give you extra practice.
+       Mathmo is designed to give you extra fluency practice in A-level mathematics.
       <br>
-      <br>
-      On the <b>My Qs</b> tab you'll find your current set of questions under a list of topics. 
-      These stay with you till you clear them or delete them individually. They'll be the same questions even if you close Mathmo and return to it later.
-      Tap one of the question topics to see the question itself.
-      <br><br>
-      When you have completed a question, touch <b>Check Answer</b> to check your work and
-      reply to <b>Did you agree?</b>. You may need to do a little more work to see whether your answer really is the same or not.
-      The questions will change colour according to your answer. Red means 'I didn't agree'. Green means 'I agreed'. Black means 'Answer not checked'. 
-      <br><br>
-      On the <b>Add</b> tab you can generate 5 more random core, further or stats questions, or generate them singly on selected topics.
 
       <h3>Updates</h3>
       Mathmo is a web application, and should update itself when you reload the app after it has been updated on the server. 
@@ -121,29 +191,21 @@
       </p>
       <p>
       Question and Answer generators:
-       Tom White, Edward Cree
+       Tom White, Edward Cree, with unit tests by Ben Millwood.
       </p>
       <p>
-      <a href="http://github.com/gmp26/mathmo">Mobile Implementation:</a> Mike Pearson with contributions from
-      <a href="http://github.com/naush/mathmo">Li Hsuan</a>.</p>
+      <a href="http://github.com/gmp26/mathmo">HTML5/Angular Implementation:</a> Mike Pearson.
+      </p>
 
       <p>
-      The following have also been important in developing mathmo
-      </p><ul>
-      <li>
-      <a href="http://www.mobl-lang.org">Mobl-lang</a> by Zef Hemel, University of Delft.
-      </li>
-      <li>
-      The <a href="http://code.google.com/p/flot/">flot plotting library</a>
-      </li>
-
-      </ul>
-      <a href="http://www.mathjax.org/">
-        <img title="Powered by MathJax" src="http://www.mathjax.org/badge.gif" border="0" alt="Powered by MathJax">
-      </a>
+      Mathmo is now based on <a href="http://angularjs.org">Angular</a>, 
+      <a href="http://angular-ui.github.io/bootstrap">Angular UI Bootstrap</a>,
+      the <a href="d3js.org">d3 SVG toolkit</a> from Mike Bostock, and the
+      <a href="http://www.mathjax.org/">MathJAX library</a> for TeX rendering.
+      </p>
 
       <h3>License</h3>
-      <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/3.0/88x31.png"></a><br><span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/InteractiveResource" property="dct:title" rel="dct:type">Mathmo</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="http://nrich.maths.org" property="cc:attributionName" rel="cc:attributionURL">NRICH Project, University of Cambridge</a> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported License</a>.<br>Based on a work at <a xmlns:dct="http://purl.org/dc/terms/" href="http://github.com/gmp26/mathmo" rel="dct:source">github.com</a>.
+      <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/3.0/88x31.png"></a><br><span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/InteractiveResource" property="dct:title" rel="dct:type">Mathmo</span> by the <a xmlns:cc="http://creativecommons.org/ns#" href="http://nrich.maths.org" property="cc:attributionName" rel="cc:attributionURL">NRICH Project, University of Cambridge</a> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported License</a>.<br>Based on a work at <a xmlns:dct="http://purl.org/dc/terms/" href="http://github.com/gmp26/Apps1" rel="dct:source">github.com</a>.
 
     </div>
 
@@ -151,7 +213,4 @@
         <button class="btn btn-warning cancel" ng-click="closeAbout()">Close</button>
     </div>
   </div>
-
-
-
 </div>

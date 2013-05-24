@@ -158,6 +158,7 @@ module.exports = (grunt) ->
           cwd: './.temp/'
           src: [
             'img/**/*.png'
+            'scripts/pubs/**/*.png'
             'scripts/libs/html5shiv-printshiv.js'
             'scripts/libs/json2.js'
             'scripts/scripts.min.js'
@@ -217,7 +218,7 @@ module.exports = (grunt) ->
       img:
         files: [
           cwd: './src/'
-          src: 'img/**/*.png'
+          src: '**/*.png'
           dest: './.temp/'
           expand: true
         ]
@@ -326,8 +327,12 @@ module.exports = (grunt) ->
         ]
       scripts:
         files: [
-          './src/scripts/**'
-          './test/scripts/**'
+          './src/scripts/**/*.coffee'
+          './src/scripts/**/*.ls'
+          './src/scripts/**/*.js'
+          './test/scripts/**/*.coffee'
+          './test/scripts/**/*.ls'
+          './test/scripts/**/*.js'
         ]
         tasks: [
           'coffee:scripts'
@@ -598,6 +603,7 @@ module.exports = (grunt) ->
     'appstyles'
     'less'
     'template:views'
+    'copy:img'
     'template:prod'
     'restrict'
     'imagemin'
