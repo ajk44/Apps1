@@ -31,7 +31,7 @@
 
     #
     # question seeding
-    # 
+    #
     topicCounts = {}
     startQNumber = 1000
 
@@ -72,15 +72,15 @@
 
       seed = name+'/'+topicId+'/'+topicCounts[name][topicId]
 
-      console.log "seed = #seed"
+      #console.log "seed = #seed"
 
       Math.seedrandom seed
 
       maker = config.topicMakerById topicId
       qa = maker()
 
-      console.log "q=", qa[0]
-      console.log "a=", qa[1]
+      #console.log "q=", qa[0]
+      #console.log "a=", qa[1]
 
       path = if ('' + $location.port() == '80') then '/mathmoApp' else ''
 
@@ -104,6 +104,33 @@
       question.graphData = qa[2](qa[3]) if question.isGraph()=='graph'
       pane.questions.push question
       $scope.renderMath()
+
+
+    # testQ is a stripped out version of retrieveQ that gets called in unit testing
+    $scope.testQ = (topicId, qNo = 1) ->
+
+      name = "unit-test"
+
+      # some questions may have 2 or 3 part ids
+      parts = topicId.split \:
+      if parts.length == 2
+        [topicId, qNo] = parts
+        qNo = +qNo
+      else
+        if parts.length == 3
+          [topicId, qNo, name] = parts
+          qNo = +qNo
+
+      topicCounts[name] ||= {}
+
+      seed = name+'/'+topicId+'/'+qNo
+
+      Math.seedrandom seed
+
+      maker = config.topicMakerById topicId
+      qa = maker()
+
+      [qa[0], qa[1]]
 
     similarQ = (question, inc) ->
       name = question.exName
@@ -139,13 +166,18 @@
       $scope.renderMath()
 
     $scope.prevOnTopic = (qa) ->
+      qa.isCollapsed = true
       similarQ(qa, -1)
-    
+
     $scope.nextOnTopic = (qa) ->
+      qa.isCollapsed = true
       similarQ(qa, +1)
-    
+
     $scope.topicAvailable = (topicId) ->
       pane = $scope.activePane
+      console.log "activePane = #{pane.name}"
+      console.log "topicId = #{topicId}"
+      console.log "topicCounts = #{topicCounts[pane.name]?[topicId]?}"
       return not topicCounts[pane.name]?[topicId]?
 
     $scope.appendQ = (topicId, pane = null) ->
@@ -153,7 +185,7 @@
         pane = $scope.activePane
       qStore.appendQ pane.name, topicId
       retrieveQ(topicId, pane)
-    
+
     qStore.list().forEach (name) ->
       p = {
         name: name
@@ -206,7 +238,7 @@
       qNo = 0
       if $routeParams
         $scope.resourceId = $routeParams.id ? 7088
-        $scope.single = $routeParams.users != "class" 
+        $scope.single = $routeParams.users != "class"
         if $routeParams.cmd?
           cmd = $routeParams.cmd
         if $routeParams.x?
@@ -238,21 +270,22 @@
 
             # now retrieve any previously shared questions, suppressing any
             pane.qSet.forEach (topic) ->
-              retrieveQ topic, pane    
+              retrieveQ topic, pane
 
 
     #
     # set up sharing tab if needed
     #
     addSharingTab($routeParams)
-    
+
     #
     # Sharing dialog
     #
     $scope.openShare = (qa) ->
       $scope.currentQuestion = qa
       $scope.shareOpen = true
-      $scope.shareText = '#mathmo #nrichmaths Working on '+qa.url
+      $scope.shareUrl = $window.encodeURIComponent qa.url
+      $scope.shareText = $window.encodeURIComponent '#mathmo #nrichmaths Working on '+qa.url
 
     $scope.closeShare = -> $scope.shareOpen = false;
 
@@ -293,5 +326,6 @@
       swarnings := false
 
     $scope.showSketchWarning = -> swarnings
+
 ]
 

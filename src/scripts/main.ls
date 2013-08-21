@@ -16,7 +16,7 @@ require {
       deps:
         * 'libs/seedrandom'
           'libs/qa/helpers'
-        
+
     'libs/qa/polys':
       deps:
         * 'libs/seedrandom'
@@ -40,6 +40,10 @@ require {
         * 'libs/seedrandom'
           'libs/qa/helpers'
 
+    'libs/qa/geometry':
+      deps:
+        * 'libs/seedrandom'
+          'libs/qa/helpers'
 
     'libs/qa/problems':
       deps:
@@ -51,6 +55,7 @@ require {
           'libs/qa/helpers'
           'libs/qa/polys'
           'libs/qa/stats'
+          'libs/qa/geometry'
 
     'pubs/mathmo/services/config':
       deps:
@@ -73,7 +78,7 @@ require {
         * 'app'
           'pubs/mathmo/controllers/mathmoController'
           'directives/d3Vis'
-          'services/d3LineChart'
+          'services/d3MultiLineChart'
           'libs/d3.v3'
 
     'controllers/appController':
@@ -154,10 +159,11 @@ require {
       deps:
         * 'app'
         ...
-    'services/d3LineChart':
+    'services/d3MultiLineChart':
       deps:
         * 'app'
         'libs/d3.v3'
+        ...
     'bootstrap':
       deps:
         * 'app'
@@ -174,7 +180,7 @@ require {
       deps:
         * 'libs/angular'
         ...
-    'app': 
+    'app':
       deps:
         * 'libs/angular'
           'libs/angular-resource'

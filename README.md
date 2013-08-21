@@ -9,10 +9,10 @@ The aim is to make this app host a few related apps and form the basis of simila
 
 Added some grunt tasks:
 
-* grunt mask:<appname> causes only the named add to be generated in the final dist.
-* grunt unmask causes all apps to be present. Useful for test purposes.
+* `grunt mask:<appname>` causes only the named app to be generated in the final dist.
+* `grunt unmask` causes all apps to be present. Useful for test purposes.
 
-Converted codebase to [livescript](http://livescript.net).
+Converted codebase to [LiveScript](http://livescript.net).
 
 Updated to grunt-0.4 in all but the playlist branch which is
 still at grunt-0.3.
@@ -28,14 +28,14 @@ Follow the patterns and you'll get a complete development workflow, including:
 * three build configurations
 	* **default** - compilation with no optimizations
 	* **dev** - compilation with no optimizations but includes file watching to monitor changes and build changed files on-the-fly
-	* **prod** - compilation with all optimizations, including concatenation and minification of png, JavaScript, CSS, and HTML files.
+	* **prod** - compilation with all optimizations, including concatenation and minification of PNG, JavaScript, CSS, and HTML files.
 * full dependency management (file loading and dependency resolution)
 * an in-browser unit testing strategy
 * a server to run the application
 
 ## Prerequisites
 * Text editor - preferably TextMate or Sublime Text, set to translate tabs
-  to 2 spaces. We use 2 spaces per indent for livescript. If using these
+  to 2 spaces. We use 2 spaces per indent for LiveScript. If using these
   editors, install the [livescript.tmbundle](https://github.com/paulmillr/livescript.tmbundle) for syntax checking.
 
 * Must have [Git](http://git-scm.com/) installed
@@ -44,19 +44,18 @@ Follow the patterns and you'll get a complete development workflow, including:
 * Must have [Grunt](https://github.com/gruntjs/grunt) node package installed globally.  `npm install -g grunt-cli`
 
 ## Install Apps1
-Enter the following commands in the terminal.
+Enter the following commands at a command line:
 
-1. `git clone git://github.com/gmp26/Apps1.git`
-1. `cd Apps1`
-1. `git checkout d3`
-1. `npm install`
+    git clone git://github.com/gmp26/Apps1.git
+    cd Apps1
+    npm install
 
 ## Compile Apps1
 You have three options.
 
 1. `grunt` - will compile the app preserving individual files (when run, files will be loaded on-demand)
 2. `grunt dev` - same as `grunt` but will watch for file changes and recompile on-the-fly
-3. `grunt prod` - will compile using optimizations.  This will create one JavaScript file and one CSS file to demonstrate the power of [r.js](http://requirejs.org/docs/optimization.html), the build optimization tool for RequireJS.  And take a look at the index.html file.  Yep - it's minified too.
+3. `grunt prod` - will compile using optimizations.  This will create one JavaScript file and one CSS file to demonstrate the power of [r.js](http://requirejs.org/docs/optimization.html), the build optimization tool for RequireJS.  And take a look at the `index.html` file.  Yep - it's minified too.
 
 ## Using Javascript instead of Coffeescript
 To work with plain old JavaScript run the following grunt task.
@@ -68,10 +67,10 @@ To work with plain old JavaScript run the following grunt task.
 3. Open the [app](http://localhost:3005/) in your browser to run the app
 
 ## Making Changes
-* `grunt dev` will watch for any CoffeeScript (.coffee), Less (.less), or .template file changes.  When changes are detected, the files will be linted, compiled, and ready for you to refresh the browser.
+* `grunt dev` will watch for any CoffeeScript (`.coffee`), Less (`.less`), or `.template` file changes.  When changes are detected, the files will be linted, compiled, and ready for you to refresh the browser.
 
 ## Running Tests
 You have two options.
 
-1. [Jasmine](http://pivotal.github.com/jasmine/) HTML runner -  run `grunt` - Then open /test/runner.html in your browser to run the unit tests using Jasmine.
-2. [Karma](http://vojtajina.github.com/karma/) - `grunt test` -  Defaults to running the tests in chrome, but you can easily change this in karma.conf.js browsers section as required.
+1. [Jasmine](http://pivotal.github.com/jasmine/) HTML runner -  run `grunt` - Then open `/test/runner.html` in your browser to run the unit tests using Jasmine.
+2. [Karma](http://vojtajina.github.com/karma/) - `grunt test` -  Defaults to running the tests in Chrome, but you can easily change this in `karma.conf.js` browsers section as required.
